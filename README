@@ -1,0 +1,10 @@
+This is a customized ESP32cam firmware aiming to provide snapshot in every configured time duration and goes to deepsleep in between. An MQTT message is published when the camera wakeup and reay to take snapshot. After the snapshot is downloaded by a client, the client should publish another MQTT message to notify ESP32-cam to go deepsleep again.
+
+The required components:
+1. WIFI
+2. HTTP server
+3. MQTT
+4. ESP32-camera (https://github.com/espressif/esp32-camera)
+
+The building env:
+1. ESP-IDF (https://github.com/espressif/esp-idf)
