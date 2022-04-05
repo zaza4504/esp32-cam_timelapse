@@ -8,7 +8,12 @@
 void app_main()
 {
     ESP_ERROR_CHECK(nvs_flash_init());
-    wifi_init();
+
+    struct WIFI_auth wifi_auth = {
+        .ssid = "abc",
+	.passwd = "123456"
+    };
+    wifi_init(&wifi_auth);
     httpd_handle_t server = NULL;
     server = webserver_start();
     esp_mqtt_client_config_t mqtt_cfg = {

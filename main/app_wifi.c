@@ -27,8 +27,6 @@
    If you'd rather not, just change the below entries to strings with
    the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
 */
-#define EXAMPLE_ESP_WIFI_SSID      "esp32-cam"
-#define EXAMPLE_ESP_WIFI_PASS      "12345678"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  5
 
 #define ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_OPEN
@@ -107,7 +105,7 @@ static void event_handler_ap(void* arg, esp_event_base_t event_base,
     }
 }
 
-bool wifi_init_sta(void)
+bool wifi_init_sta(struct WIFI_auth *wifi_auth)
 {
     s_wifi_event_group = xEventGroupCreate();
 
@@ -133,14 +131,14 @@ bool wifi_init_sta(void)
 
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = EXAMPLE_ESP_WIFI_SSID,
-            .password = EXAMPLE_ESP_WIFI_PASS,
             /* Setting a password implies station will connect to all security modes including WEP/WPA.
              * However these modes are deprecated and not advisable to be used. Incase your Access point
              * doesn't support WPA2, these mode can be enabled by commenting below line */
 	     .threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD,
         },
     };
+    memcpy(wifi_config.ap.ssid, wifi_auth->ssid, strlen(wifi_auth->ssid));
+    memcpy(wifi_config.ap.password, wifi_auth->passwd, strlen(wifi_auth->passwd));
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
@@ -159,11 +157,11 @@ bool wifi_init_sta(void)
      * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+                 wifi_auth->ssid, wifi_auth->passwd);
 	return true;
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+                 wifi_auth->ssid, wifi_auth->passwd);
     } else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
@@ -172,7 +170,7 @@ bool wifi_init_sta(void)
     return false;
 }
 
-void wifi_init_ap(void)
+void wifi_init_ap(struct WIFI_auth *wifi_auth)
 {
     //ESP_ERROR_CHECK(esp_netif_init());
     //ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -189,10 +187,8 @@ void wifi_init_ap(void)
 
     wifi_config_t wifi_config = {
         .ap = {
-            .ssid = EXAMPLE_ESP_WIFI_SSID,
-            .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+            .ssid_len = strlen(wifi_auth->ssid),
             .channel = EXAMPLE_ESP_WIFI_CHANNEL,
-            .password = EXAMPLE_ESP_WIFI_PASS,
             .max_connection = EXAMPLE_MAX_STA_CONN,
             .authmode = WIFI_AUTH_WPA_WPA2_PSK,
             .pmf_cfg = {
@@ -200,7 +196,9 @@ void wifi_init_ap(void)
             },
         },
     };
-    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+    memcpy(wifi_config.ap.ssid, wifi_auth->ssid, strlen(wifi_auth->ssid));
+    memcpy(wifi_config.ap.password, wifi_auth->passwd, strlen(wifi_auth->passwd));
+    if (strlen(wifi_auth->passwd) == 0) {
         wifi_config.ap.authmode = WIFI_AUTH_OPEN;
     }
 
@@ -209,10 +207,10 @@ void wifi_init_ap(void)
     ESP_ERROR_CHECK(esp_wifi_start());
 
     ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
-             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS, EXAMPLE_ESP_WIFI_CHANNEL);
+             wifi_auth->ssid, wifi_auth->passwd, EXAMPLE_ESP_WIFI_CHANNEL);
 }
 
-void wifi_init(void)
+void wifi_init(struct WIFI_auth *wifi_auth)
 {
     /* try to connect wifi first and then start AP if connect failed */
     ESP_ERROR_CHECK(esp_netif_init());
@@ -220,7 +218,7 @@ void wifi_init(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    if(!wifi_init_sta()) {
-        wifi_init_ap();
+    if(!wifi_init_sta(wifi_auth)) {
+        wifi_init_ap(wifi_auth);
     }
 }
