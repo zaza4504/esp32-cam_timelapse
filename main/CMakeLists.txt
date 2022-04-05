@@ -4,4 +4,9 @@ idf_component_register(
          "app_http.c"
     REQUIRES esp_http_server
              nvs_flash
-    INCLUDE_DIRS "include")
+             mqtt
+    INCLUDE_DIRS "include"
+    EMBED_FILES "www/index.html.gz"
+                "www/style.css.gz"
+                "www/script.js.gz"
+)

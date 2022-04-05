@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>ESP32-cam</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+	<script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+        <section id="content">
+            <div class="wifiSection">
+                <div class="wifiCfg">
+                <div>
+                    <label for="wifi_accesspoint">Wifi Access Point:</label>
+                    <input type="text" id="wifi_accesspoint" name="wifi_accesspoint" value="John"><br>
+                </div>
+		<div>
+                    <label for="wifi_passwd">Wifi Password:</label>
+                    <input type="text" id="wifi_passwd" name="wifi_passwd" value="Doe"><br><br>
+		</div>
+		<div id="wifi_notify_msg" style="display:none">Saved!!</div>
+		<button type="button" id="wifi_cfg_save" onclick="wifi_cfg_save()">Save!</button>
+		</div>
+            </div>
+        </section> <!-- content -->
+    </body>
+</html>

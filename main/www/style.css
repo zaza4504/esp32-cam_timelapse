@@ -1,0 +1,15 @@
+.wifiSection {
+  border: 5px outset red;
+  background-color: lightblue;    
+  text-align: center;
+}
+
+.wifiCfg {
+  display: inline-block;
+  text-align: left;
+}
+
+label {
+  width:200px;
+  display: inline-block;
+}
