@@ -4,15 +4,20 @@
 #include "app_wifi.h"
 #include "app_http.h"
 #include "app_mqtt.h"
+#include "app_nvs.h"
 
 void app_main()
 {
-    ESP_ERROR_CHECK(nvs_flash_init());
+    nvs_setting_init();
 
-    struct WIFI_auth wifi_auth = {
-        .ssid = "abc",
-	.passwd = "123456"
-    };
+    struct WIFI_auth wifi_auth;
+    size_t len = sizeof(wifi_auth);
+    esp_err_t err = nvs_setting_get("settings","wifiauth", &wifi_auth, &len);
+    if(err != ESP_OK || len != sizeof(wifi_auth)) {
+        memset(&wifi_auth, 0, sizeof(wifi_auth));
+        memcpy(wifi_auth.ssid, DEFAULT_SSID, strlen(DEFAULT_SSID));
+        memcpy(wifi_auth.passwd, DEFAULT_PASSWD, strlen(DEFAULT_PASSWD));
+    }
     wifi_init(&wifi_auth);
     httpd_handle_t server = NULL;
     server = webserver_start();

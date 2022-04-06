@@ -3,6 +3,7 @@ idf_component_register(
          "app_wifi.c"
          "app_http.c"
          "app_mqtt.c"
+         "app_nvs.c"
     REQUIRES esp_http_server
              nvs_flash
              mqtt

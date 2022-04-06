@@ -20,6 +20,8 @@
 #include <esp_http_server.h>
 
 #include "app_http.h"
+#include "app_nvs.h"
+#include "app_wifi.h"
 /* A simple example that demonstrates how to create GET and POST
  * handlers for the web server.
  */
@@ -88,10 +90,8 @@ static esp_err_t css_handler(httpd_req_t *req){
 }
 
 static esp_err_t wifi_cfg_handler(httpd_req_t *req){
-    char ac[32] = {0,};
-    char passwd[8 * 3];  //sizeof(settings.wifi_password) is the biggest one, *3 because special characters take 3 chard like " " = %20
-    memset(ac, 0, sizeof(ac));
-    memset(passwd, 0, sizeof(passwd));
+    struct WIFI_auth wifi_auth;
+    memset(&wifi_auth, 0, sizeof(wifi_auth));
     size_t buf_len = httpd_req_get_url_query_len(req) + 1;
     if(buf_len < 1) {
         httpd_resp_send_404(req);
@@ -102,14 +102,15 @@ static esp_err_t wifi_cfg_handler(httpd_req_t *req){
         httpd_resp_send_500(req);
         return ESP_FAIL;
     }
-    if(httpd_req_get_url_query_str(req, buf, buf_len) != ESP_OK || httpd_query_key_value(buf, "wifi_accesspoint", ac, sizeof(ac)) != ESP_OK || httpd_query_key_value(buf, "wifi_passwd", passwd, sizeof(passwd)) != ESP_OK) {
+    if(httpd_req_get_url_query_str(req, buf, buf_len) != ESP_OK || httpd_query_key_value(buf, "wifi_accesspoint", wifi_auth.ssid, sizeof(wifi_auth.ssid)) != ESP_OK || httpd_query_key_value(buf, "wifi_passwd", wifi_auth.passwd, sizeof(wifi_auth.passwd)) != ESP_OK) {
         free(buf);
         httpd_resp_send_404(req);
 	return ESP_FAIL;
     }
     free(buf);
+    urldecode2(wifi_auth.passwd, wifi_auth.passwd);
+    nvs_setting_set("settings", "wifiauth", &wifi_auth, sizeof(wifi_auth));
 
-    urldecode2(passwd, passwd);
     return httpd_resp_send(req, NULL, HTTPD_RESP_USE_STRLEN);
 }
 
