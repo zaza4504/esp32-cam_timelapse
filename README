@@ -7,4 +7,4 @@ The required components:
 4. ESP32-camera (https://github.com/espressif/esp32-camera)
 
 The building env:
-1. ESP-IDF (https://github.com/espressif/esp-idf)
+1. ESP-IDF(v4.4) (https://github.com/espressif/esp-idf)
