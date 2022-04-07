@@ -5,6 +5,7 @@
 #include "app_http.h"
 #include "app_mqtt.h"
 #include "app_nvs.h"
+#include "app_cam.h"
 
 void app_main()
 {
@@ -19,6 +20,7 @@ void app_main()
         memcpy(wifi_auth.passwd, DEFAULT_PASSWD, strlen(DEFAULT_PASSWD));
     }
     wifi_init(&wifi_auth);
+    ESP_ERROR_CHECK(camera_init());
     httpd_handle_t server = NULL;
     server = webserver_start();
     esp_mqtt_client_config_t mqtt_cfg = {

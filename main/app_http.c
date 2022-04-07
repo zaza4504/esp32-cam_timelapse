@@ -22,6 +22,7 @@
 #include "app_http.h"
 #include "app_nvs.h"
 #include "app_wifi.h"
+#include "app_cam.h"
 /* A simple example that demonstrates how to create GET and POST
  * handlers for the web server.
  */
@@ -114,6 +115,14 @@ static esp_err_t wifi_cfg_handler(httpd_req_t *req){
     return httpd_resp_send(req, NULL, HTTPD_RESP_USE_STRLEN);
 }
 
+static esp_err_t cam_stream_handler(httpd_req_t *req){
+    return jpg_stream_httpd_handler(req);
+}
+
+static esp_err_t cam_snapshot_handler(httpd_req_t *req){
+    return jpg_httpd_handler(req);
+}
+
 static const httpd_uri_t index_uri = {
     .uri       = "/",
     .method    = HTTP_GET,
@@ -142,6 +151,20 @@ static const httpd_uri_t wifi_cfg_uri = {
     .user_ctx  = NULL
 };
 
+static const httpd_uri_t cam_stream_uri = {
+    .uri       = "/stream",
+    .method    = HTTP_GET,
+    .handler   = cam_stream_handler,
+    .user_ctx  = NULL
+};
+
+static const httpd_uri_t cam_snapshot_uri = {
+    .uri       = "/snapshot",
+    .method    = HTTP_GET,
+    .handler   = cam_snapshot_handler,
+    .user_ctx  = NULL
+};
+
 httpd_handle_t webserver_start(void)
 {
     httpd_handle_t server = NULL;
@@ -157,6 +180,8 @@ httpd_handle_t webserver_start(void)
         httpd_register_uri_handler(server, &js_uri);
         httpd_register_uri_handler(server, &css_uri);
         httpd_register_uri_handler(server, &wifi_cfg_uri);
+        httpd_register_uri_handler(server, &cam_stream_uri);
+        httpd_register_uri_handler(server, &cam_snapshot_uri);
 
         #if CONFIG_EXAMPLE_BASIC_AUTH
         httpd_register_basic_auth(server);

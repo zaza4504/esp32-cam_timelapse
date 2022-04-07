@@ -191,9 +191,6 @@ void wifi_init_ap(struct WIFI_auth *wifi_auth)
             .channel = EXAMPLE_ESP_WIFI_CHANNEL,
             .max_connection = EXAMPLE_MAX_STA_CONN,
             .authmode = WIFI_AUTH_WPA_WPA2_PSK,
-            .pmf_cfg = {
-                    .required = false,
-            },
         },
     };
     memcpy(wifi_config.ap.ssid, wifi_auth->ssid, strlen(wifi_auth->ssid));
